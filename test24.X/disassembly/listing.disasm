@@ -1,0 +1,183 @@
+Disassembly Listing for test24
+Generated From:
+/home/tuxrox/MPLABXProjects/test24.X/dist/default/production/test24.X.production.elf
+Aug 29, 2016 10:32:22 PM
+
+---  /home/tuxrox/MPLABXProjects/test24.X/newmainXC16.c  ------------------------------------------------
+1:                 /*
+2:                  * File:   newmainXC16.c
+3:                  * Author: tuxrox
+4:                  *
+5:                  * Created on August 5, 2016, 10:31 AM
+6:                  */
+7:                 
+8:                 
+9:                 #include <xc.h>
+10:                #define FCY 8000000UL
+11:                #include <libpic30.h>
+12:                
+13:                void __attribute__((interrupt, auto_psv))  _INT0Interrupt(void) {
+0002A8  781F80     MOV W0, [W15++]
+0002AA  F80034     PUSH PSVPAG
+0002AC  200000     MOV #0x0, W0
+0002AE  8801A0     MOV W0, PSVPAG
+0002B0  FA0000     LNK #0x0
+14:                    // turn on all lights.
+15:                    LATA = 0xFFFF;
+0002B2  EB8000     SETM W0
+0002B4  881620     MOV W0, LATA
+16:                    LATAbits.LATA4 = 0;
+0002B6  A982C4     BCLR LATA, #4
+17:                    LATB = 0xFF;
+0002B8  200FF0     MOV #0xFF, W0
+0002BA  881660     MOV W0, LATB
+18:                    
+19:                    IFS0bits.INT0IF = 0;    //Clear the INT0 interrupt flag or else
+0002BC  A90084     BCLR IFS0, #0
+20:                                            //the CPU will keep vectoring back to the ISR
+21:                }
+0002BE  FA8000     ULNK
+0002C0  F90034     POP PSVPAG
+0002C2  78004F     MOV [--W15], W0
+0002C4  064000     RETFIE
+22:                
+23:                int main(void) {
+0002C6  FA0002     LNK #0x2
+24:                    AD1PCFG	 =	0xFFFF;	 //set to all digital I/O
+0002C8  EB8000     SETM W0
+0002CA  881960     MOV W0, AD1PCFG
+25:                
+26:                    // Set TRISA to output on pins 1 and 2
+27:                    TRISA = 0x00;
+0002CC  EF22C0     CLR TRISA
+28:                    TRISB = 0x00;
+0002CE  EF22C8     CLR TRISB
+29:                    
+30:                    // Pre set RA0 and RA1 to initial values
+31:                    LATAbits.LATA0 = 1;
+0002D0  A802C4     BSET LATA, #0
+32:                    LATAbits.LATA1 = 1;
+0002D2  A822C4     BSET LATA, #1
+33:                    LATAbits.LATA2 = 1;
+0002D4  A842C4     BSET LATA, #2
+34:                    LATAbits.LATA3 = 0; // This pin seams to not work currently, may be setting issue
+0002D6  A962C4     BCLR LATA, #3
+35:                    LATAbits.LATA4 = 1;
+0002D8  A882C4     BSET LATA, #4
+36:                    
+37:                    LATBbits.LATB0 = 1;
+0002DA  A802CC     BSET LATB, #0
+38:                    LATBbits.LATB1 = 1;
+0002DC  A822CC     BSET LATB, #1
+39:                    LATBbits.LATB2 = 1;
+0002DE  A842CC     BSET LATB, #2
+40:                    LATBbits.LATB3 = 1;
+0002E0  A862CC     BSET LATB, #3
+41:                    
+42:                    INTCON2 = 0x001F;       /*Setup INT1, INT2, INT3 & INT4 pins to interupt */
+0002E2  2001F0     MOV #0x1F, W0
+0002E4  880410     MOV W0, INTCON2
+43:                                                /*on falling edge and set up INT0 pin to interupt */
+44:                                                /*on rising edge */
+45:                    IFS0bits.INT0IF = 0;    /*Reset INT0 interrupt flag */
+0002E6  A90084     BCLR IFS0, #0
+46:                    IEC0bits.INT0IE = 1;    /*Enable INT0 Interrupt Service Routine */
+0002E8  A80094     BSET IEC0, #0
+47:                    
+48:                    //Toggle after delay
+49:                    unsigned int i = 0;
+0002EA  EB0000     CLR W0
+0002EC  780F00     MOV W0, [W14]
+0002EE  370001     BRA 0x2F2
+50:                    while(1){
+51:                        __delay_ms(50);
+0002F2  21A800     MOV #0x1A80, W0
+0002F4  200061     MOV #0x6, W1
+0002F6  070034     RCALL 0x360
+52:                        switch(i) {
+0002F8  78001E     MOV [W14], W0
+0002FA  500FE3     SUB W0, #0x3, [W15]
+0002FC  320019     BRA Z, 0x330
+0002FE  500FE3     SUB W0, #0x3, [W15]
+000300  3E0005     BRA GTU, 0x30C
+000302  500FE1     SUB W0, #0x1, [W15]
+000304  32000F     BRA Z, 0x324
+000306  500FE1     SUB W0, #0x1, [W15]
+000308  3E0010     BRA GTU, 0x32A
+00030A  370009     BRA 0x31E
+00030C  500FE5     SUB W0, #0x5, [W15]
+00030E  320016     BRA Z, 0x33C
+000310  500FE5     SUB W0, #0x5, [W15]
+000312  390011     BRA NC, 0x336
+000314  500FE6     SUB W0, #0x6, [W15]
+000316  320015     BRA Z, 0x342
+000318  500FE7     SUB W0, #0x7, [W15]
+00031A  320016     BRA Z, 0x348
+53:                            case 0:
+54:                                __builtin_btg((unsigned int *)&LATA, 0);
+00031E  202C40     MOV #0x2C4, W0
+000320  A20010     BTG [W0], #0
+55:                                break;
+000322  370015     BRA 0x34E
+56:                            case 1:
+57:                                __builtin_btg((unsigned int *)&LATA, 1);
+000324  202C40     MOV #0x2C4, W0
+000326  A21010     BTG [W0], #1
+58:                                break;
+000328  370012     BRA 0x34E
+59:                            case 2:
+60:                                __builtin_btg((unsigned int *)&LATA, 2);
+00032A  202C40     MOV #0x2C4, W0
+00032C  A22010     BTG [W0], #2
+61:                                break;
+00032E  37000F     BRA 0x34E
+62:                            case 3:
+63:                                __builtin_btg((unsigned int *)&LATA, 4);
+000330  202C40     MOV #0x2C4, W0
+000332  A24010     BTG [W0], #4
+64:                                break;
+000334  37000C     BRA 0x34E
+65:                            case 4:
+66:                                __builtin_btg((unsigned int *)&LATB, 0);
+000336  202CC0     MOV #0x2CC, W0
+000338  A20010     BTG [W0], #0
+67:                                break;
+00033A  370009     BRA 0x34E
+68:                            case 5:
+69:                                __builtin_btg((unsigned int *)&LATB, 1);
+00033C  202CC0     MOV #0x2CC, W0
+00033E  A21010     BTG [W0], #1
+70:                                break;
+000340  370006     BRA 0x34E
+71:                            case 6:
+72:                                __builtin_btg((unsigned int *)&LATB, 2);
+000342  202CC0     MOV #0x2CC, W0
+000344  A22010     BTG [W0], #2
+73:                                break;
+000346  370003     BRA 0x34E
+74:                            case 7:
+75:                                __builtin_btg((unsigned int *)&LATB, 3);
+000348  202CC0     MOV #0x2CC, W0
+00034A  A23010     BTG [W0], #3
+76:                                break;
+00034C  000000     NOP
+77:                            default:
+78:                                break;
+00031C  370018     BRA 0x34E
+79:                        }
+80:                        i++;
+00034E  E80F1E     INC [W14], [W14]
+81:                        if(i>7){
+000350  78001E     MOV [W14], W0
+000352  500FE7     SUB W0, #0x7, [W15]
+000354  36FFCD     BRA LEU, 0x2F0
+82:                            i=0;
+000356  EB0000     CLR W0
+000358  780F00     MOV W0, [W14]
+83:                        }
+84:                        
+85:                    }
+0002F0  000000     NOP
+00035A  37FFCB     BRA 0x2F2
+86:                    return 0;
+87:                }
